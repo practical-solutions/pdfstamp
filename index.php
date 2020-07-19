@@ -56,11 +56,17 @@
 }
 
 #mark{
-    color:red;
+    color:#417ebf;
+    background:white;
     position:absolute;
     left:0;
     bottom:40;
+    border:1px solid #417ebf;
     visibility:hidden;
+    height:20px;
+    display:inline-table;
+    font-size:11px;
+    box-shadow: black 2px 2px 2px;
 }
 
 #action {
@@ -69,6 +75,8 @@
     color: steelblue;
     font-weight: bold;
     visibility:hidden;
+    border: 1px solid steelblue;
+    padding: 2px;
 }
 
 .top {
@@ -86,6 +94,40 @@
     position:absolute;
     bottom:0px;
     width:100%;
+}
+
+#text, #uploadmsg {
+    display: block;
+    text-align: center;
+    margin-top: 30%;
+    font-size: 24px;
+    font-weight: bold;
+    color: lightblue;
+}
+
+#uploadmsg {
+    color:linen;
+}
+
+.msg {
+    color:black;
+    background:cornsilk;
+    width:90%;
+    margin-bottom:1em;
+}
+
+#stamptext {
+    display:none;
+}
+
+#savetext {
+    display:none;
+    width: 3em;
+    text-align: center;
+    color: black;
+    margin: 1px;
+    cursor: pointer;
+    background:lightgray;
 }
 
 body {
@@ -108,7 +150,10 @@ function loadImage(id){
     c.src = i.src;
     
     file = id;
-    document.getElementById("action").style.visibility = "visible";
+    document.getElementById("text").style.display = "none";
+    document.getElementById("action").style.visibility = "hidden";
+    document.getElementById("mark").style.visibility = "hidden";
+    document.getElementById("stampcaption").innerHTML = "Stamp";
 }
 
 function coordinates(e) {
@@ -128,19 +173,44 @@ function coordinates(e) {
         posy = Math.round(posy*100/height);
         
         document.getElementById("mark").style.visibility = "visible";
+        document.getElementById("action").style.visibility = "visible";
         
+        document.getElementById("mark").style.width = parseInt(document.getElementById("myCanvas").width * 0.24);
         
-        //document.getElementById("xy").innerHTML = width + "<br>";
-        
-        //document.getElementById("xy").innerHTML = posx+","+posy;
-        
-        
-    
 }
 
 function createStamp(){
-    window.location.href = "stamp.php?src=" + file;
+    var text = encodeURI(document.getElementById("stampcaption").innerHTML);
+    window.location.href = "stamp.php?src=" + file + '&x=' + posx + '&y=' + posy + '&text=' + text;
 }
+
+function edittext(){
+    document.getElementById("stampcaption").style.display = "none";
+    
+    document.getElementById("stamptext").value = document.getElementById("stampcaption").innerHTML;
+    
+    document.getElementById("stamptext").style.display = "block";
+    document.getElementById("savetext").style.display = "block";
+}
+
+function setText(){
+    document.getElementById("stampcaption").innerHTML = document.getElementById("stamptext").value;
+    
+    document.getElementById("stampcaption").style.display = "block";
+    
+    document.getElementById("stamptext").style.display = "none";
+    document.getElementById("savetext").style.display = "none";
+    
+}
+
+function checkload(id){
+    if (id == src) loadImage(id);
+    
+}
+
+// Retrieve GET-Parameter
+urlParams = new URLSearchParams(window.location.search);
+var src = urlParams.get('src');
 
 </script>
 
@@ -150,6 +220,7 @@ function createStamp(){
     
 <div class="top">
 <?php
+
 function folder_exist($folder)
 {
     // Get canonicalized absolute pathname
@@ -157,6 +228,10 @@ function folder_exist($folder)
 
     // If it exist, check if it's a directory
     return ($path !== false AND is_dir($path)) ? $path : false;
+}
+
+function msg($m) {
+    echo "<div class='thumb msg'>$m</div>";
 }
 
 
@@ -177,63 +252,76 @@ $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
 // Check if file already exists
 if (file_exists($target_file)) {
-  echo "Sorry, file already exists.";
+  msg("Sorry, file already exists.");
   $uploadOk = 0;
 }
 
 // Check file size
 if ($_FILES["fileToUpload"]["size"] > 12500000) {
-  echo "Sorry, your file is too large.";
+  msg("Sorry, your file is too large.");
   $uploadOk = 0;
 }
 
 // Allow certain file formats
 if($imageFileType != "pdf") {
-  echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+  msg("Sorry, only PDF files are allowed.");
   $uploadOk = 0;
 }
 
 // Check if $uploadOk is set to 0 by an error
 if ($uploadOk == 0) {
-  echo "Sorry, your file was not uploaded.";
+  msg("Sorry, your file was not uploaded.");
 // if everything is ok, try to upload file
 } else {
   if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-    echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+    msg("The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.");
   } else {
-    echo "Sorry, there was an error uploading your file.";
+    msg("Sorry, there was an error uploading your file.");
   }
 }
 
 }
 
+
+if (isset($_GET['msg'])) msg($_GET['msg']);
+
 $dir = scandir('uploads');
+$found = 0;
 foreach ($dir as $f) {
     if (strpos($f,'.pdf') !== false) {
-        echo "<div class='thumb'>";
+        
         if ($_GET['erase'] == $f) {
             unlink ("uploads/$f");
-            echo "$f was deleted.";
+            msg("$f was deleted.");
 
         } else {
+            echo "<div class='thumb'>";
             echo $f;
-            echo "<img id='$f' src='pdfimg.php?src=uploads/$f' onclick='loadImage(this.id)'>";
-            echo '<a href="'.$_SERVER['PHP_SELF'].'?erase='.$f.'">Erase</a>';
+            echo "<img id='$f' src='pdfimg.php?src=uploads/$f' onclick='loadImage(this.id)' onload='checkload(this.id)'>";
+            echo '<a href="'.$_SERVER['PHP_SELF'].'?erase='.$f.'">Erase</a> | ';
+            echo '<a href="uploads/'.$f.'" download>Download</a>';
+            $found++;
+            echo '</div>';
         }
-        echo '</div>';
+        
     }
 }
 
-?>
+if ($found==0) { ?>
+<div id="uploadmsg">
+Upload a file to start
+</div>
+
+<?php } ?>
 
 
 </div>
 
 <div class="bottom">
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" action="index.php">
         Select PDF to upload:
-        <input type="file" name="fileToUpload" id="fileToUpload">
-        <input type="submit" value="Upload Image" name="submit">
+        <input type="file" name="fileToUpload" id="fileToUpload" >
+        <input type="submit" value="Upload PDF" name="submit">
     </form>
 </div>
 
@@ -242,7 +330,12 @@ foreach ($dir as $f) {
 
 
 <div class="split right">
-
+    
+    <div id="text">
+    Choose a pdf file on the left
+    </div>
+    
+    
     <div id="stamp">
         <span id="xy"></span>
     </div>
@@ -251,8 +344,12 @@ foreach ($dir as $f) {
     <img id="myCanvas" onclick="coordinates(event)" style="max-height:90%;background:white;right: 20px;position: absolute;">
 
     <div id="mark">
-        Stempel
+        <span id="stampcaption" onclick="edittext()">Stamp</span>
+        
+        <textarea id="stamptext"></textarea>
+        <span id="savetext" class="button" onclick="setText()">OK</span>
     </div>
+    
 
     <div id="action">
         <a onclick="createStamp()" style="cursor:pointer">Mark document</a>
@@ -263,4 +360,9 @@ foreach ($dir as $f) {
 
 
 </body>
+
+
+
+
+
 </html>
