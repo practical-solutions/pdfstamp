@@ -319,7 +319,7 @@ Upload a file to start
 </div>
 
 <div class="bottom">
-    <form method="post" enctype="multipart/form-data" action="index.php">
+    <form method="post" enctype="multipart/form-data" action="convert.php">
         Select PDF to upload:
         <input type="file" name="fileToUpload" id="fileToUpload" >
         <input type="submit" value="Upload PDF" name="submit">
