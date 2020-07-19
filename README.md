@@ -2,6 +2,8 @@
 
 This software lets you print information like a stamp on a pdf document.
 
+![preview](https://github.com/practical-solutions/pdfstamp/blob/master/screenshot.png)
+
 ## Requirements
 
 Just copy the contents into a directory and call the convert.php. Only tested with the firefox-browser.
