@@ -60,7 +60,7 @@ for ($i=1;$i<=$pageCount;$i++) {
 #$pdf->Output();
 
 $pdf->Output('F',$src);
-header('Location: index.php?msg='.urlencode("Document was marked.").'&src='.urlencode($_GET['src']));
+header('Location: convert.php?msg='.urlencode("Document was marked.").'&src='.urlencode($_GET['src']));
 exit;
 
     
