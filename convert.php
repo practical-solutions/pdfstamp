@@ -67,6 +67,7 @@
     display:inline-table;
     font-size:11px;
     box-shadow: black 2px 2px 2px;
+    max-height: fit-content;
 }
 
 #action {
@@ -83,7 +84,7 @@
     display: block;
     width: 100%;
     height: 90%;
-    overflow: scroll;
+    overflow-y: scroll;
     padding-left:1em;
 }
 

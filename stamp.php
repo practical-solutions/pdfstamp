@@ -3,8 +3,8 @@
 
 # Fpdi-Settings
 use setasign\Fpdi\Fpdi;   
-require_once('fpdf.php');
-require_once('src/autoload.php');
+require_once('fpdf/fpdf.php');
+require_once('fpdi/src/autoload.php');
 
 # Parameters
 if (isset($_GET['src'])) {
