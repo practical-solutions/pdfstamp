@@ -1,6 +1,6 @@
 # PDF-Stamp
 
-This software lets you print information like a stamp on a pdf document.
+This software lets you print information like a stamp on a pdf document. It is browser-based and is programmed in php.
 
 ![preview](https://github.com/practical-solutions/pdfstamp/blob/master/screenshot.png)
 
